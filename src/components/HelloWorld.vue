@@ -39,10 +39,27 @@
         </a>
       </li>
     </ul>
+    <h2>Google Apps Script</h2>
+    <li>
+      <a class="gas-blue" href="https://developers.google.com/apps-script"
+        >Apps Script</a
+      >
+    </li>
+    <li>
+      <a
+        class="gas-blue"
+        href="https://developers.google.com/apps-script/guides/web"
+        >Web Apps</a
+      >
+    </li>
     <h2>Ashton Fei</h2>
-    <li><a href="https://youtube.com/ashtonfei">YouTube</a></li>
-    <li><a href="https://twitter.com/ashton.fei">Twitter</a></li>
-    <li><a href="https://github.com/ashtonfei">Github</a></li>
+    <li>
+      <a class="gas-blue" href="https://youtube.com/ashtonfei">YouTube</a>
+    </li>
+    <li>
+      <a class="gas-blue" href="https://twitter.com/ashton_fei">Twitter</a>
+    </li>
+    <li><a class="gas-blue" href="https://github.com/ashtonfei">Github</a></li>
   </div>
 </template>
 
@@ -51,7 +68,7 @@ export default {
   name: "HelloWorld",
   data() {
     return {
-      msg: "Welcome to Your Vue.js App",
+      msg: "Welcome to Your Web Application Powered by VueJS and GAS",
     };
   },
 };
@@ -73,5 +90,8 @@ li {
 }
 a {
   color: #42b983;
+}
+.gas-blue {
+  color: #4285f4;
 }
 </style>
