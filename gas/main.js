@@ -1,5 +1,6 @@
 const SETTINGS = {
     APP_NAME: "VueJS GAS Template",
+    SSDB_ID: "",
 }
 
 function include(filename) {
@@ -12,4 +13,16 @@ function doGet(e) {
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
         .addMetaTag("viewport", "width=device-width,initial-scale=1")
     return htmlOuput
+}
+
+function request(method = "GET", tableName, stringify_json, sid) {
+    let response = { success: true, message: "Your request has been done successfully.", sid }
+    const session = Session.getSession(sid)
+    if (!session) return { success: false, message: "Your session is not valid anymore, please sign in again!", sid: null }
+
+    const data = JSON.parse(stringify_json)
+    if (method.toUpperCase() === "GET") return API.get(tableName, data)
+    if (method.toUpperCase() === "POST") return API.post(tableName, data)
+    if (method.toUpperCase() === "DELETE") return API.delete(tableName, data)
+    return JSON.stringify(response)
 }
