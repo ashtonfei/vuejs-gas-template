@@ -1,9 +1,5 @@
 <template>
   <div id="app">
-    <div class="logos">
-      <img src="./assets/logo.png" />
-      <img src="./assets/gas.svg" />
-    </div>
     <router-view />
   </div>
 </template>
@@ -25,5 +21,32 @@ export default {
 }
 .logos img {
   width: 200px;
+}
+h1,
+h2 {
+  font-weight: normal;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+.gas-blue {
+  color: #4285f4;
+}
+h2 a {
+  display: inline-block;
+  margin: 3px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+.active-link {
+  color: #42b983;
 }
 </style>

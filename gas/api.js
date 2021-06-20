@@ -1,7 +1,5 @@
 class Session {
     constructor() {
-        const cache = CacheService.getScriptCache()
-        const expirationInSeconds = 6 * 60 * 60 // 6 hours
     }
 
     static generateSessionId() {
@@ -9,58 +7,119 @@ class Session {
     }
 
     static getSession(sid) {
-        const session = this.cache.get(sid)
+        const session = CacheService.getScriptCache().get(sid)
         if (session === null) return session
         return this.createSession(sid, session)
     }
 
     static createSession(key, session) {
-        this.cache.put(key, session, this.expirationInSeconds)
+        CacheService.getScriptCache().put(key, session, SETTINGS.SESSION_EXPRATION_IN_SECONDS)
         return session
     }
 
     static deleteSession(sid) {
-        this.cache.remove(sid)
+        CacheService.getScriptCache().remove(sid)
     }
 }
 
 class SSDB {
     constructor(id = SETTINGS.SSDB_ID) {
-        this.id = id
-        this.db = SpreadsheetApp.openById(this.id)
+    }
+    /**
+     * @param {} table - the name of the table(tab) in the database(spreadsheet)
+     */
+
+    static getAllData(table) {
+        let [keys, ...values] = table.getDataRange().getValues()
+        keys = keys.map(v => v.toString().trim())
+        return values.map(v => {
+            const item = {}
+            keys.forEach((key, i) => {
+                if (key) item[key] = v[i]
+            })
+            return item
+        })
     }
 }
 
 class API extends SSDB {
     constructor() {
-
     }
-
-    getTableByName(name) {
-        return this.db.getSheetByName(name)
-    }
-
-    static get(tableName, filters = {}) {
-        let response = { success: true, message: `Items have been retrieved from database.` }
-        const table = this.getTableByName(tableName)
-        if (!table) response = { success: false, message: `${tableName} was not found in database.` }
-        response.data = []
+    /**
+     * @param {string} name - name of the table(tab) in the database(spreadsheet)
+     */
+    static getTableByName(name) {
+        let db
+        const response = { success: true, message: `${name} is found in the database.`, table: null }
+        try {
+            db = SpreadsheetApp.openById(SETTINGS.SSDB_ID)
+        } catch (e) {
+            response.success = false
+            response.message = `${e.message}`
+            return response
+        }
+        const table = db.getSheetByName(name)
+        if (!table) {
+            response.success = false
+            response.message = `${name} was not found in database.`
+        } else {
+            response.table = table
+        }
         return response
     }
 
-    static post(tableName, stringify_json) {
-        let response = { success: true, message: `Items have been updated in the database.` }
-        const table = this.getTableByName(tableName)
-        if (!table) response = { success: false, message: `${tableName} was not found in database.` }
-        response.data = []
-        return response
+    /**
+     * @param {string} tableName - name of the table(tab) in the database(spreadsheet)
+     * @param {object} data - filters object {key: value}
+     */
+    static get(tableName, data) {
+        const { success, message, table } = this.getTableByName(tableName)
+        if (!table) return { success, message }
+        return {
+            success,
+            message: "Items have been retrieved from the database.",
+            data: SSDB.getAllData(table)
+        }
     }
 
-    static delete(tableName, id) {
-        let response = { success: true, message: `Items with ${id} have been deleted from ${tableName}.` }
-        const table = this.getTableByName(tableName)
-        if (!table) response = { success: false, message: `${tableName} was not found in database.` }
-        response.data = null
-        return response
+    /**
+     * @param {string} tableName - name of the table(tab) in the database(spreadsheet)
+     * @param {object|array} data - object for single item and array of object for mutiple items 
+     */
+    static post(tableName, data) {
+        const { success, message, table } = this.getTableByName(tableName)
+        if (!table) return { success, message }
+        return {
+            success,
+            message: "Items have been posted from the database.",
+            data: table.getDataRange().getValues()
+        }
+    }
+
+    /**
+     * @param {string} tableName - name of the table(tab) in the database(spreadsheet)
+     * @param {object} data - item id object {id: id_value}
+     */
+    static delete(tableName, data) {
+        const { success, message, table } = this.getTableByName(tableName)
+        if (!table) return { success, message }
+        return {
+            success,
+            message: "Items have been deleted from the database.",
+            data: table.getDataRange().getValues()
+        }
+    }
+}
+
+class Auth {
+    constructor() {
+
+    }
+
+    static singin() {
+
+    }
+    static signout() {
+
     }
 }
