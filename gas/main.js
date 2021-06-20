@@ -1,4 +1,5 @@
 const SETTINGS = {
+    SECRECT: "asdflkja;lskjdfi12;lkjafjslkdf",
     APP_NAME: "VueJS GAS Template",
     SSDB_ID: "15zF38SRtW9LjFFrwHYN9-VFROPH6_cn25lqrhlHtxpg",
     SESSION_EXPRATION_IN_SECONDS: 6 * 60 * 60, // Max 6 hours, min 1s
@@ -16,25 +17,12 @@ function doGet(e) {
     return htmlOuput
 }
 
-function request(method, tableName, stringify_json, sid) {
-    let response = { success: true, message: "Your request has been done successfully.", sid }
-    const session = Session.getSession(sid)
-    if (!session) return { success: false, message: "Your session is not valid anymore, please sign in again!", sid: null }
-
+function request(method, tableName, stringify_json, token) {
+    let response = { success: true, message: "Your request has been done successfully.", token }
+    if (!JWT.isValidToken(token)) return { success: false, message: "Your session is not valid anymore, please sign in again!", token: null }
     const data = JSON.parse(stringify_json)
     if (method.toUpperCase() === "GET") response = API.get(tableName, data)
     if (method.toUpperCase() === "POST") response = API.post(tableName, data)
     if (method.toUpperCase() === "DELETE") response = API.delete(tableName, data)
-    return JSON.stringify({ ...response, sid })
-}
-
-function test() {
-    const sid = "ZjAxYmE1MWEtZjc2YS00ZTc1LWE0ZjctYWYxNzgxMTNkNDYy"
-    console.log(sid)
-    const data = JSON.stringify({ name: "Ashton Fei" })
-    const session = Session.createSession(sid, data)
-    console.log(session)
-
-    const response = request("DELETE", "users", data, sid)
-    console.log(response)
+    return JSON.stringify({ ...response, token })
 }

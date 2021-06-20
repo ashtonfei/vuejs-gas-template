@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { getLocalItem } from "@/utils.js";
+
 import UsersTable from "@/components/UsersTable";
 
 export default {
@@ -54,6 +56,9 @@ export default {
     loading: true,
   }),
   created() {
+    const testToken =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQXNodG9uIEZlaSJ9.7TIf2tNTvbGTih25no2_9Q--4zf0lTPIEGxJzNcypXU=";
+    const token = getLocalItem("token") || testToken;
     try {
       google.script.run
         .withSuccessHandler((response) => {
@@ -69,12 +74,7 @@ export default {
           alert(err.message);
           this.loading = false;
         })
-        .request(
-          "GET",
-          "users",
-          "{}",
-          "ZjAxYmE1MWEtZjc2YS00ZTc1LWE0ZjctYWYxNzgxMTNkNDYy"
-        );
+        .request("GET", "users", "{}", token);
     } catch (err) {
       this.users = [...this.defaultUsers];
       this.loading = false;

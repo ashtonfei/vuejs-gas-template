@@ -1,23 +1,17 @@
-
-async function sendRequest(method, tableName, data, sid) {
-    let response
+const getLocalItem = (key) => {
     try {
-        google.script.run
-            .withSuccessHandler(response => {
-                console.log(JSON.parse(response))
-                response = JSON.parse(response)
-            })
-            .withFailureHandler(err => {
-                console.log(err.message)
-                response = { success: false, message: err.message }
-            })
-            .request(method, tableName, data, sid)
+        return localStorage.getItem(key)
     } catch (err) {
-        response = { success: false, message: err.message }
+        return null
     }
-    return response
 }
 
-export {
-    sendRequest,
+const setLocalItem = (key, value) => {
+    try {
+        return localStorage.setItem(key, value)
+    } catch (err) {
+        //pass
+    }
 }
+
+export { getLocalItem, setLocalItem }

@@ -1,3 +1,25 @@
+class JWT {
+    constructor() { }
+    /**
+     * @param {object} payload - an json object
+     */
+    static createToken(payload) {
+        const header = Utilities.base64EncodeWebSafe(JSON.stringify({ alg: "HS256", typ: "JWT" }))
+        payload = Utilities.base64EncodeWebSafe(JSON.stringify(payload))
+        const signature = Utilities.computeHmacSha256Signature(`${header}.${payload}`, SETTINGS.SECRECT)
+        return `${header}.${payload}.${Utilities.base64EncodeWebSafe(signature)}`
+    }
+
+    /**
+     * @param {string} token - header.payload.signature
+     */
+    static isValidToken(token){
+      const [header, payload, signature] = token.split(".")
+      const validSignature = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(`${header}.${payload}`, SETTINGS.SECRECT))
+      return signature === validSignature
+    }
+}
+
 class Session {
     constructor() {
     }
@@ -21,6 +43,7 @@ class Session {
         CacheService.getScriptCache().remove(sid)
     }
 }
+
 
 class SSDB {
     constructor(id = SETTINGS.SSDB_ID) {
