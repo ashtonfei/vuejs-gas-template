@@ -5,8 +5,16 @@
 </template>
 
 <script>
+import { checkUserAuth } from "@/utils";
 export default {
   name: "App",
+  async created() {
+    const result = await checkUserAuth();
+    console.log(result);
+    if (result.success) {
+      this.$store.commit("user/setUser", result.data);
+    }
+  },
 };
 </script>
 

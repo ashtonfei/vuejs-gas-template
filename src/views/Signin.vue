@@ -1,11 +1,7 @@
 <template>
   <div>
     <h2>
-      <router-link
-        to="/signin"
-        :class="$route.name === 'Sign in' ? 'active-link' : ''"
-        >Sign in</router-link
-      >
+      <a :class="$route.name === 'signin' ? 'active-link' : ''">Sign in</a>
     </h2>
 
     <div class="logos">
@@ -13,7 +9,7 @@
       <img src="../assets/gas.svg" />
     </div>
 
-    <form @submit.prevent="signin">
+    <form @submit.prevent="onSignin">
       <div>
         <label :for="form.email.name">{{ form.email.label }}</label
         ><br />
@@ -42,19 +38,12 @@
 </template>
 
 <script>
-import { getLocalItem, setLocalItem } from "@/utils.js";
+import { mapActions } from "vuex";
 
 export default {
   name: "Home",
   components: {},
   data: () => ({
-    user: null,
-    defaultUser: {
-      name: "Ashton Fei",
-      email: "ashton.fei@gmail.com",
-      role: "admin",
-      status: "active",
-    },
     form: {
       email: {
         label: "Email",
@@ -72,38 +61,15 @@ export default {
     loading: true,
   }),
   methods: {
-    signin() {
-      const email = this.form.email.value;
+    ...mapActions("user", {
+      signin: "signin",
+    }),
+    onSignin() {
+      const email = this.form.email.value.toLowerCase();
       const password = this.form.password.value;
-      console.log(email, password);
-      if (!email) return alert("email is required");
-      if (!password) return alert("password is required");
-      try {
-        google.script.run
-          .withSuccessHandler((response) => {
-            const { success, message, data, token } = JSON.parse(response);
-            if (success) {
-              this.user = data;
-              this.token = token;
-              setLocalItem("token", token);
-            } else {
-              alert(message);
-            }
-            this.loading = true;
-          })
-          .withFailureHandler((err) => {
-            this.loading = false;
-            alert(err.message);
-          })
-          .signin(email, password);
-      } catch (err) {
-        this.user = this.defaultUser;
-        this.loading = false;
-        this.$router.push("/");
-      }
+      this.signin({ email, password });
     },
   },
-  created() {},
 };
 </script>
 

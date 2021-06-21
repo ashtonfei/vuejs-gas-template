@@ -1,12 +1,12 @@
 <template>
   <div>
     <h2>
-      <router-link to="/" :class="$route.name === 'Home' ? 'active-link' : ''"
+      <router-link to="/" :class="$route.name === 'home' ? 'active-link' : ''"
         >Home</router-link
       >
       <router-link
         to="/users"
-        :class="$route.name === 'Users' ? 'active-link' : ''"
+        :class="$route.name === 'users' ? 'active-link' : ''"
       >
         Users
       </router-link>
@@ -16,17 +16,24 @@
 </template>
 
 <script>
-import { getLocalItem } from "@/utils.js";
-
+import { getToken, TEST_TOKEN } from "@/utils.js";
 import UsersTable from "@/components/UsersTable";
-
+import { mapGetters, mapState } from "vuex";
 export default {
   name: "Home",
   components: {
     UsersTable,
   },
+  computed: {
+    ...mapState({
+      users: (state) => state.users.users,
+    }),
+    ...mapGetters("users", {
+      activeUsers: "activeUsers",
+      activeUsersCount: "activeUsersCount",
+    }),
+  },
   data: () => ({
-    users: [],
     defaultUsers: [
       {
         id: 1,
@@ -56,29 +63,9 @@ export default {
     loading: true,
   }),
   created() {
-    const testToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQXNodG9uIEZlaSJ9.7TIf2tNTvbGTih25no2_9Q--4zf0lTPIEGxJzNcypXU=";
-    const token = getLocalItem("token") || testToken;
-    try {
-      google.script.run
-        .withSuccessHandler((response) => {
-          const { success, message, data } = JSON.parse(response);
-          if (success) {
-            this.users = data;
-          } else {
-            alert(message);
-          }
-          this.loading = false;
-        })
-        .withFailureHandler((err) => {
-          alert(err.message);
-          this.loading = false;
-        })
-        .request("GET", "users", "{}", token);
-    } catch (err) {
-      this.users = [...this.defaultUsers];
+    this.$store.dispatch("users/getAllUsers").then(() => {
       this.loading = false;
-    }
+    });
   },
 };
 </script>

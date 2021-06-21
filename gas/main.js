@@ -17,7 +17,7 @@ function doGet(e) {
     return htmlOuput
 }
 
-function request(method, tableName, stringify_json, token) {
+const request = (method, tableName, stringify_json, token) => {
     let response = { success: true, message: "Your request has been done successfully.", token }
     if (!JWT.isValidToken(token)) return { success: false, message: "Your session is not valid anymore, please sign in again!", token: null }
     const data = JSON.parse(stringify_json)
@@ -26,3 +26,10 @@ function request(method, tableName, stringify_json, token) {
     if (method.toUpperCase() === "DELETE") response = API.delete(tableName, data)
     return JSON.stringify({ ...response, token })
 }
+
+const validateToken = (token) => JSON.stringify(Auth.validateToken(token))
+
+const signout = (token) => JSON.stringify(Auth.signout(token))
+
+const signin = (email, password) => JSON.stringify(Auth.singin(email, password))
+

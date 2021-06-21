@@ -13,10 +13,10 @@ class JWT {
     /**
      * @param {string} token - header.payload.signature
      */
-    static isValidToken(token){
-      const [header, payload, signature] = token.split(".")
-      const validSignature = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(`${header}.${payload}`, SETTINGS.SECRECT))
-      return signature === validSignature
+    static isValidToken(token) {
+        const [header, payload, signature] = token.split(".")
+        const validSignature = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(`${header}.${payload}`, SETTINGS.SECRECT))
+        return signature === validSignature
     }
 }
 
@@ -139,10 +139,36 @@ class Auth {
 
     }
 
-    static singin() {
-
+    static validateToken(token) {
+        return JWT.isValidToken(token) ? {
+            success: true,
+            message: "Token is valid.",
+            data: JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(token.split(".")[1])).getDataAsString()),
+            token,
+        } : {
+            success: false,
+            message: "Token is invalid.",
+            data: null,
+            token: null,
+        }
     }
-    static signout() {
+
+    static singin(email, password) {
+        if (`{email}.{password}` === 'yunjia.fei@gmail.com.password') {
+            const user = {
+                id: 'gas-test',
+                name: 'Ashton Fei',
+                email: 'yunjia.fei@gmail.com',
+                role: 'admin',
+                status: 'active',
+            }
+            user.token = JWT.createToken(user)
+            return { success: true, message: 'You are signed in successfully.', data: user }
+        }
+        return { success: false, message: 'Your credentials are not correct.', data: null }
+    }
+
+    static signout(token) {
 
     }
 }

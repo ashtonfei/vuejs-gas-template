@@ -1,16 +1,20 @@
 <template>
   <div>
     <h2>
-      <router-link to="/" :class="$route.name === 'Home' ? 'active-link' : ''">
+      <router-link to="/" :class="$route.name === 'home' ? 'active-link' : ''">
         Home
       </router-link>
       <router-link
         to="/users"
-        :class="$route.name === 'Users' ? 'active-link' : ''"
+        :class="$route.name === 'users' ? 'active-link' : ''"
       >
         Users
       </router-link>
     </h2>
+    <span v-if="user"
+      >Hello, {{ user.name }}, you are logged in as {{ user.role }}. Click to
+      <a href="#" @click="onSignout">Sign out</a>.</span
+    >
 
     <div class="logos">
       <img src="../assets/logo.png" />
@@ -86,12 +90,24 @@
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
 export default {
   name: "Home",
-  data() {
-    return {
-      msg: "Welcome to Your Web Application Powered by VueJS and GAS",
-    };
+  data: () => ({
+    msg: "Welcome to Your Web Application Powered by VueJS and GAS",
+  }),
+  computed: {
+    ...mapState("user", {
+      user: "user",
+    }),
+  },
+  methods: {
+    ...mapActions("user", {
+      signout: "signout",
+    }),
+    onSignout() {
+      this.signout();
+    },
   },
 };
 </script>
