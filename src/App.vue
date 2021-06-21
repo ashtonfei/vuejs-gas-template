@@ -5,14 +5,25 @@
 </template>
 
 <script>
-import { checkUserAuth } from "@/utils";
+import { getToken, TEST_USER } from "@/utils";
 export default {
   name: "App",
-  async created() {
-    const result = await checkUserAuth();
-    console.log(result);
-    if (result.success) {
-      this.$store.commit("user/setUser", result.data);
+  created() {
+    const token = getToken();
+    if (token === null || token === "null") return;
+    try {
+      google.script.run
+        .withSuccessHandler((response) => {
+          const { success, message, data } = JSON.parse(response);
+          if (!success) return alert(message);
+          this.$store.commit("user/setUser", data);
+        })
+        .withFailureHandler((err) => {
+          alert(err.message);
+        })
+        .validateToken(token);
+    } catch (err) {
+      this.$store.commit("user/setUser", TEST_USER);
     }
   },
 };

@@ -154,7 +154,7 @@ class Auth {
     }
 
     static singin(email, password) {
-        if (`{email}.{password}` === 'yunjia.fei@gmail.com.password') {
+        if (`${email}.${password}` === 'yunjia.fei@gmail.com.password') {
             const user = {
                 id: 'gas-test',
                 name: 'Ashton Fei',

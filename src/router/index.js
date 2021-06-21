@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { checkUserAuth } from '@/utils.js'
+import { getToken } from '@/utils'
 
 import Home from '@/views/Home'
 import Signin from '@/views/Signin'
@@ -10,20 +10,21 @@ Vue.use(Router)
 
 const router = new Router({
     routes: [
-        {
-            path: '/signin',
-            name: 'signin',
-            component: Signin,
-            meta: {
-                requiresAuth: false,
-            },
-        },
+
         {
             path: '/',
             name: 'home',
             component: Home,
             meta: {
                 requiresAuth: true,
+            },
+        },
+        {
+            path: '/signin',
+            name: 'signin',
+            component: Signin,
+            meta: {
+                requiresAuth: false,
             },
         },
         {
@@ -37,12 +38,30 @@ const router = new Router({
     ]
 })
 
-router.beforeEach(async (to, from, next) => {
-    const result = await checkUserAuth()
-    if (!result.success && to.name !== "signin") {
-        next("/signin")
-    } else {
-        next()
+router.beforeEach((to, from, next) => {
+    const token = getToken();
+    if (token === null) {
+        if (to.name !== 'signin') next('/signin')
+        else next()
+        return
+    }
+    try {
+        google.script.run
+            .withSuccessHandler((response) => {
+                const { success, message, data } = JSON.parse(response);
+                console.log({ success, message, data })
+                if (to.name !== 'signin' && !success) next('/signin')
+                else next()
+            })
+            .withFailureHandler((err) => {
+                console.log({ error: err.message })
+                if (to.name !== 'signin') next('/signin')
+                else next()
+            })
+            .validateToken(token);
+    } catch (err) {
+        if (to.name !== 'signin' && !token) next('/signin')
+        else next()
     }
 })
 

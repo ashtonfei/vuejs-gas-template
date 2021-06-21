@@ -1,4 +1,4 @@
-import { GOOGLE_NOT_DEFINED, TEST_TOKEN, sendRequest } from '@/utils'
+import { GOOGLE_NOT_DEFINED, getToken } from '@/utils'
 
 const state = () => ({
     users: [],
@@ -32,21 +32,26 @@ const state = () => ({
 
 const getters = {
     activeUsers: state => state.users.filter(v => v.status.toLowerCase() === 'active'),
-    activeUsersCount: (state, getters) => getters.activeUsers.length,
+    activeUsersCount: (getters) => getters.activeUsers.length,
 }
 
 const actions = {
-    getAllUsers: async ({ commit, state }) => {
-        const token = ""
-        const result = await sendRequest('GET', 'users', {}, TEST_TOKEN)
-        if (result.success) {
-            commit('setUsers', result.data)
-        } else {
-            if (result.message === GOOGLE_NOT_DEFINED) {
-                commit('setUsers', state.defaultUsers)
-            } else {
-                alert(result.message)
-            }
+    getAllUsers: ({ commit, state }) => {
+        const token = getToken()
+        if (token === null || token === "null") return
+        try {
+            google.script.run
+                .withSuccessHandler(response => {
+                    const { success, message, data } = JSON.parse(response)
+                    if (!success) alert(message)
+                    commit('setUsers', data)
+                })
+                .withFailureHandler(err => {
+                    alert(err.message)
+                })
+                .request("GET", "users", '{}', token)
+        } catch (err) {
+            commit('setUsers', state.defaultUsers)
         }
     }
 }

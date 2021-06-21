@@ -1,4 +1,4 @@
-import { TEST_TOKEN, setToken, removeToken } from '@/utils.js'
+import { TEST_USER, getToken, setToken, removeToken } from '@/utils.js'
 import router from '@/router'
 
 const state = () => ({
@@ -20,16 +20,36 @@ const getters = {
 }
 
 const actions = {
+    checkUserAuth: ({ commit, state }) => {
+        const token = getToken();
+        if (token === null || token === "null") return this.$router.push("/signin");
+        try {
+            google.script.run
+                .withSuccessHandler((response) => {
+                    const { success, message, data } = JSON.parse(response);
+                    if (!success) return alert(message);
+                    this.$store.commit("user/setUser", data);
+                })
+                .withFailureHandler((err) => {
+                    alert(err.message);
+                })
+                .validateToken(token);
+        } catch (err) {
+            this.$store.commit("user/setUser", TEST_USER);
+        }
+    },
     signin: ({ state, commit }, { email, password }) => {
         try {
             google.script.run
                 .withSuccessHandler(response => {
                     const { success, message, data } = JSON.parse(response)
+                    console.log({ success, message, data })
                     if (!success) {
                         alert(message)
                         return
                     }
                     commit('setUser', data)
+                    router.push('/')
                 })
                 .withFailureHandler(err => {
                     alert(err.message)
@@ -41,20 +61,19 @@ const actions = {
                 return
             }
             console.log("You are signed in.")
-            const user = { ...state.defaultUser, token: TEST_TOKEN }
-            commit('setUser', user)
+            commit('setUser', TEST_USER)
             router.push('/')
         }
     },
     signout: ({ commit }) => {
         commit('setUser', null)
-        router.push('/signin')
+        console.log("You are signed out.")
+        router.go('/signin')
     },
 }
 
 const mutations = {
     setUser: (state, data) => {
-        console.log({ setUserData: data })
         state.user = data
         if (data == null) return removeToken()
         if (data.token) setToken(data.token)

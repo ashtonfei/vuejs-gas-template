@@ -11,7 +11,8 @@ const TEST_USER = {
 
 const getLocalItem = (key) => {
     try {
-        return localStorage.getItem(key)
+        let token = localStorage.getItem(key)
+        return token == 'null' ? null : token
     } catch (err) {
         return null
     }
@@ -37,37 +38,6 @@ const getToken = () => getLocalItem(AUTH_TOKEN_KEY)
 const setToken = (token) => setLocalItem(AUTH_TOKEN_KEY, token)
 const removeToken = () => removeLocalItem(AUTH_TOKEN_KEY)
 
-const checkUserAuth = async () => {
-    const token = getToken()
-    if (token == null || token == "null") return { success: false, message: 'No token found in this browser.', data: null }
-    try {
-        await google.script.run
-            .withSuccessHandler(response => {
-                return JSON.parse(response)
-            })
-            .withFailureHandler(err => {
-                return { success: false, message: err.message, data: null }
-            })
-            .validateToken(token)
-    } catch (err) {
-        return { success: true, message: err.message, data: TEST_USER }
-    }
-}
-
-const sendRequest = async (method, tableName, data, token) => {
-    try {
-        await google.script.run
-            .withSuccessHandler(response => {
-                return JSON.parse(response)
-            })
-            .withFailureHandler(err => {
-                return { success: false, message: err.message, token }
-            })
-            .request(method, tableName, JSON.stringify(data), token)
-    } catch (err) {
-        return { success: false, message: err.message, data: null, token }
-    }
-}
 
 export {
     GOOGLE_NOT_DEFINED,
@@ -80,6 +50,4 @@ export {
     getToken,
     setToken,
     removeToken,
-    checkUserAuth,
-    sendRequest,
 }
