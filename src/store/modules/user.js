@@ -1,5 +1,6 @@
 import { TEST_USER, getToken, setToken, removeToken } from '@/utils.js'
 import router from '@/router'
+import { cat } from 'shelljs'
 
 const state = () => ({
     user: null,
@@ -67,9 +68,34 @@ const actions = {
     },
     signout: ({ commit }) => {
         commit('setUser', null)
-        console.log("You are signed out.")
-        router.go('/signin')
-        // location.reload()
+        router.push('/signin')
+        // const token = getToken();
+        // if (token === null || token === "null") return
+        // try {
+        //     google.script.run
+        //         .withSuccessHandler((response) => {
+        //             const { success, message, data } = JSON.parse(response)
+        //             if (success) {
+        //                 console.log({ data })
+        //                 // window.location.href = data
+        //                 commit('setUser', null)
+        //                 console.log("You are signed out.")
+        //             } else {
+        //                 console.log({ message })
+        //             }
+        //         })
+        //         .withFailureHandler(err => {
+        //             console.log({ err })
+        //         })
+        //         .signout(token)
+        // } catch (err) {
+        //     if (err.message === 'google is not defined') {
+        //         commit('setUser', null)
+        //         router.push('/signin')
+        //     } else {
+        //         console.log({ err })
+        //     }
+        // }
     },
 }
 

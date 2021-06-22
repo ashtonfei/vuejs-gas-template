@@ -81,10 +81,10 @@ class SSDB {
         const items = this.getAllItems(table)
         return items.find(item => {
             const results = Object.keys(filters).map(key => {
-              const itemValue = item[key]
-              const filterValue = filters[key]
-              if (Array.isArray(filterValue)) return filterValue.includes(itemValue)
-              return itemValue === filterValue
+                const itemValue = item[key]
+                const filterValue = filters[key]
+                if (Array.isArray(filterValue)) return filterValue.includes(itemValue)
+                return itemValue === filterValue
             })
             return !results.includes(false)
         })
@@ -106,10 +106,10 @@ class SSDB {
         const items = this.getAllItems(table)
         return items.filter(item => {
             const results = Object.keys(filters).map(key => {
-              const itemValue = item[key]
-              const filterValue = filters[key]
-              if (Array.isArray(filterValue)) return filterValue.includes(itemValue)
-              return itemValue === filterValue
+                const itemValue = item[key]
+                const filterValue = filters[key]
+                if (Array.isArray(filterValue)) return filterValue.includes(itemValue)
+                return itemValue === filterValue
             })
             return !results.includes(false)
         })
@@ -236,7 +236,7 @@ class Auth {
         }
 
         // get users by email address
-        const { success, message, data } = API.get(SETTINGS.AUTH_TABLE_NAME, {email})
+        const { success, message, data } = API.get(SETTINGS.AUTH_TABLE_NAME, { email })
         if (!success) return { ...response, success, message }
 
         // if user is not found
@@ -252,6 +252,6 @@ class Auth {
     }
 
     static signout(token) {
-
+        return { success: true, message: "You have been signed out.", data: SETTINGS.ROOT_URL }
     }
 }

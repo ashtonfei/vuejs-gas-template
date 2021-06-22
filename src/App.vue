@@ -8,6 +8,7 @@
 import { getToken, TEST_USER } from "@/utils";
 export default {
   name: "App",
+
   created() {
     const token = getToken();
     if (token === null || token === "null") return;
@@ -24,6 +25,16 @@ export default {
         .validateToken(token);
     } catch (err) {
       this.$store.commit("user/setUser", TEST_USER);
+    }
+  },
+  beforeMount() {
+    try {
+      google.script.url.getLocation((location) => {
+        if (this.$route.name !== location.hash)
+          this.$router.push({ name: location.hash });
+      });
+    } catch (err) {
+      //pass
     }
   },
 };

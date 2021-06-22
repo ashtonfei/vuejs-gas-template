@@ -1,4 +1,5 @@
 const SETTINGS = {
+    ROOT_URL: "https://script.google.com/macros/s/AKfycbzJX6xTOZSu_hIywmZ1_LBxouEAgUUOuNnI9DH3KV1l/dev",
     SECRECT: "asdflkja;lskjdfi12;lkjafjslkdf",
     APP_NAME: "VueJS GAS Template",
     SSDB_ID: "15zF38SRtW9LjFFrwHYN9-VFROPH6_cn25lqrhlHtxpg",
@@ -8,6 +9,10 @@ const SETTINGS = {
 
 function include(filename) {
     return HtmlService.createTemplateFromFile(filename).evaluate().getContent()
+}
+
+function getUrl() {
+    return ScriptApp.getService().getUrl()
 }
 
 function doGet(e) {
@@ -35,12 +40,12 @@ const signout = (token) => JSON.stringify(Auth.signout(token))
 const signin = (email, password) => JSON.stringify(Auth.singin(email, password))
 
 const createHashPassword = () => {
-  const password = '123456'
-  console.log(Auth.hashPassword(password))
+    const password = '123456'
+    console.log(Auth.hashPassword(password))
 }
 
 const test = () => {
-  const users = API.get(SETTINGS.AUTH_TABLE_NAME, {role: 'admin'})
-  console.log(users)
+    const users = API.get(SETTINGS.AUTH_TABLE_NAME, { role: 'admin' })
+    console.log(users)
 }
 

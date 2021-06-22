@@ -5,6 +5,7 @@ import { getToken } from '@/utils'
 import Home from '@/views/Home'
 import Signin from '@/views/Signin'
 import Users from '@/views/Users'
+import { cat } from 'shelljs'
 
 Vue.use(Router)
 
@@ -65,5 +66,13 @@ router.beforeEach((to, from, next) => {
         else next()
     }
 })
-
+router.afterEach((to, from) => {
+    try {
+        const stateObject = {}
+        const params = {}
+        google.script.history.push(stateObject, params, to.name)
+    } catch (err) {
+        //pass
+    }
+})
 export default router
