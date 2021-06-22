@@ -46,13 +46,14 @@ class Session {
 
 
 class SSDB {
-    constructor(id = SETTINGS.SSDB_ID) {
-    }
+    constructor() { }
     /**
-     * @param {} table - the name of the table(tab) in the database(spreadsheet)
+     * @description get all items from a table
+     * @param {sheet} table worksheet object
+     * e.g. SpreadsheetApp.getActive().getSheetByName()
+     * @returns an array of objects
      */
-
-    static getAllData(table) {
+    static getAllItems(table) {
         let [keys, ...values] = table.getDataRange().getValues()
         keys = keys.map(v => v.toString().trim())
         return values.map(v => {
@@ -63,9 +64,59 @@ class SSDB {
             return item
         })
     }
+
+    /**
+     * @description get the first match item by filters from a table
+     * @param {sheet} table worksheet object
+     * e.g. SpreadsheetApp.getActive().getSheetByName()
+     * 
+     * @param {object} filters an object of key:value pairs
+     * default is null (get all data without any filters)
+     * e.g. {name: "Ashton Fei", role: ["admin", "staff"]}
+     * note: value can be an array for multiple values in one column
+     * 
+     * @returns a single item found or undefined
+     */
+    static getItemByFilters(table, filters) {
+        const items = this.getAllItems(table)
+        return items.find(item => {
+            const results = Object.keys(filters).map(key => {
+              const itemValue = item[key]
+              const filterValue = filters[key]
+              if (Array.isArray(filterValue)) return filterValue.includes(itemValue)
+              return itemValue === filterValue
+            })
+            return !results.includes(false)
+        })
+    }
+
+    /**
+     * @description get items by filters from a table
+     * @param {sheet} table worksheet object
+     * e.g. SpreadsheetApp.getActive().getSheetByName()
+     * 
+     * @param {object} filters an object of key:value pairs
+     * default is null (get all data without any filters)
+     * e.g. {name: "Ashton Fei", role: ["admin", "staff"]}
+     * note: value can be an array for multiple values in one column
+     * 
+     * @returns an array of items found or empty array
+     */
+    static getItemsByFilters(table, filters) {
+        const items = this.getAllItems(table)
+        return items.filter(item => {
+            const results = Object.keys(filters).map(key => {
+              const itemValue = item[key]
+              const filterValue = filters[key]
+              if (Array.isArray(filterValue)) return filterValue.includes(itemValue)
+              return itemValue === filterValue
+            })
+            return !results.includes(false)
+        })
+    }
 }
 
-class API extends SSDB {
+class API {
     constructor() {
     }
     /**
@@ -92,24 +143,35 @@ class API extends SSDB {
     }
 
     /**
-     * @param {string} tableName - name of the table(tab) in the database(spreadsheet)
-     * @param {object} data - filters object {key: value}
+     * @param {string} tableName the name of table(tab) in the database(spreadsheet)
+     * e.g. users
+     * @param {object} filters an object of key:value pairs
+     * default is null (get all data without any filters)
+     * e.g. {name: "Ashton Fei", role: ["admin", "staff"]}
+     * note: value can be an array for multiple values in one column
+     * @returns an array of objects or empty array
      */
-    static get(tableName, data) {
-        const { success, message, table } = this.getTableByName(tableName)
-        if (!table) return { success, message }
-        return {
-            success,
+    static get(tableName, filters = null) {
+        const response = {
+            success: true,
             message: "Items have been retrieved from the database.",
-            data: SSDB.getAllData(table)
+            data: null,
         }
+        const { success, message, table } = this.getTableByName(tableName)
+        if (!table) return { ...response, success, message }
+        if (!filters) return { ...response, data: SSDB.getAllItems(table) }
+        return { ...response, data: SSDB.getItemsByFilters(table, filters) }
     }
 
     /**
-     * @param {string} tableName - name of the table(tab) in the database(spreadsheet)
-     * @param {object|array} data - object for single item and array of object for mutiple items 
+     * @param {string} tableName the name of table(tab) in the database(spreadsheet)
+     * e.g. users
+     * @param {object} filters an object of key:value pairs
+     * default is null (get all data without any filters)
+     * e.g. {name: "Ashton Fei", role: ["admin", "staff"]}
+     * note: value can be an array for multiple values in one column
      */
-    static post(tableName, data) {
+    static post(tableName, filters = []) {
         const { success, message, table } = this.getTableByName(tableName)
         if (!table) return { success, message }
         return {
@@ -120,10 +182,14 @@ class API extends SSDB {
     }
 
     /**
-     * @param {string} tableName - name of the table(tab) in the database(spreadsheet)
-     * @param {object} data - item id object {id: id_value}
+     * @param {string} tableName the name of table(tab) in the database(spreadsheet)
+     * e.g. users
+     * @param {object} filters an object of key:value pairs
+     * default is null (get all data without any filters)
+     * e.g. {name: "Ashton Fei", role: ["admin", "staff"]}
+     * note: value can be an array for multiple values in one column
      */
-    static delete(tableName, data) {
+    static delete(tableName, filters = []) {
         const { success, message, table } = this.getTableByName(tableName)
         if (!table) return { success, message }
         return {
@@ -137,6 +203,15 @@ class API extends SSDB {
 class Auth {
     constructor() {
 
+    }
+
+    static hashPassword(password) {
+        const signature = Utilities.computeHmacSha256Signature(password, SETTINGS.SECRECT)
+        return Utilities.base64EncodeWebSafe(signature)
+    }
+
+    static validatePassword(password, correctHashPassword) {
+        return this.hashPassword(password) === correctHashPassword
     }
 
     static validateToken(token) {
@@ -154,18 +229,26 @@ class Auth {
     }
 
     static singin(email, password) {
-        if (`${email}.${password}` === 'yunjia.fei@gmail.com.password') {
-            const user = {
-                id: 'gas-test',
-                name: 'Ashton Fei',
-                email: 'yunjia.fei@gmail.com',
-                role: 'admin',
-                status: 'active',
-            }
-            user.token = JWT.createToken(user)
-            return { success: true, message: 'You are signed in successfully.', data: user }
+        const response = {
+            success: true,
+            message: 'You are signed in successfully.',
+            data: null
         }
-        return { success: false, message: 'Your credentials are not correct.', data: null }
+
+        // get users by email address
+        const { success, message, data } = API.get(SETTINGS.AUTH_TABLE_NAME, {email})
+        if (!success) return { ...response, success, message }
+
+        // if user is not found
+        const user = data[0]
+        if (!user) return { ...response, success: false, message: "Your credentials are not correct." }
+
+        // if password is not valid
+        const isPasswordValid = this.validatePassword(password, user.password)
+        if (!isPasswordValid) return { ...response, success: false, message: "Your credentials are not correct." }
+
+        user.token = JWT.createToken(user)
+        return { ...response, data: user }
     }
 
     static signout(token) {

@@ -2,6 +2,7 @@ const SETTINGS = {
     SECRECT: "asdflkja;lskjdfi12;lkjafjslkdf",
     APP_NAME: "VueJS GAS Template",
     SSDB_ID: "15zF38SRtW9LjFFrwHYN9-VFROPH6_cn25lqrhlHtxpg",
+    AUTH_TABLE_NAME: 'users',
     SESSION_EXPRATION_IN_SECONDS: 6 * 60 * 60, // Max 6 hours, min 1s
 }
 
@@ -32,4 +33,14 @@ const validateToken = (token) => JSON.stringify(Auth.validateToken(token))
 const signout = (token) => JSON.stringify(Auth.signout(token))
 
 const signin = (email, password) => JSON.stringify(Auth.singin(email, password))
+
+const createHashPassword = () => {
+  const password = '123456'
+  console.log(Auth.hashPassword(password))
+}
+
+const test = () => {
+  const users = API.get(SETTINGS.AUTH_TABLE_NAME, {role: 'admin'})
+  console.log(users)
+}
 
