@@ -68,7 +68,8 @@ const actions = {
     signout: ({ commit }) => {
         commit('setUser', null)
         console.log("You are signed out.")
-        router.go('/signin')
+        // router.go('/signin')
+        location.reload()
     },
 }
 
