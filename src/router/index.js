@@ -9,6 +9,7 @@ import Users from '@/views/Users'
 Vue.use(Router)
 
 const router = new Router({
+    mode: 'hash',
     routes: [
 
         {
