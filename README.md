@@ -31,4 +31,10 @@ clasp create --title 'project-name' --type standalone --rootDir ./gas
 clasp push
 ```
 
+## Screenshots
+
+![image](https://user-images.githubusercontent.com/16481229/122939470-3a3c6300-d3a6-11eb-86e5-49a07bac96f6.png)
+![image](https://user-images.githubusercontent.com/16481229/122939681-6ce65b80-d3a6-11eb-9e26-f2ac48a97789.png)
+![image](https://user-images.githubusercontent.com/16481229/122939824-88e9fd00-d3a6-11eb-8f83-e586c6de21ad.png)
+
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
