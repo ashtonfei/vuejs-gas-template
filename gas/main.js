@@ -37,7 +37,10 @@ const validateToken = (token) => JSON.stringify(Auth.validateToken(token))
 
 const signout = (token) => JSON.stringify(Auth.signout(token))
 
-const signin = (email, password) => JSON.stringify(Auth.singin(email, password))
+const signin = (data) => {
+    const { email, password } = JSON.parse(data)
+    return JSON.stringify(Auth.singin(email, password))
+}
 
 const createHashPassword = () => {
     const password = '123456'

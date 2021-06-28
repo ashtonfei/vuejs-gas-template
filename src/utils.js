@@ -34,9 +34,32 @@ const removeLocalItem = (key) => {
     }
 }
 
+/**
+ * 
+ * @returns get auth token from local storage
+ */
 const getToken = () => getLocalItem(AUTH_TOKEN_KEY)
+/**
+ * 
+ * @param {string} token the token provided by the server side
+ */
 const setToken = (token) => setLocalItem(AUTH_TOKEN_KEY, token)
 const removeToken = () => removeLocalItem(AUTH_TOKEN_KEY)
+
+
+/**
+ * 
+ * @param {string} functionName the function name google.script.run.{functionName} which is created in your apps script project
+ * @param {object} params an object of parameters
+ */
+const runApi = (functionName, params) => {
+    if (typeof params === 'object') params = JSON.stringify(params)
+    return new Promise((resolve, reject) => {
+        google.script.run
+            .withSuccessHandler(reply => resolve(JSON.parse(reply)))
+            .withFailureHandler(err => reject({ success: false, message: err.message }))[functionName](params)
+    })
+}
 
 
 export {
@@ -50,4 +73,5 @@ export {
     getToken,
     setToken,
     removeToken,
+    runApi
 }

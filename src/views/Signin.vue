@@ -61,7 +61,7 @@ export default {
     loading: true,
   }),
   methods: {
-    ...mapActions("user", {
+    ...mapActions("auth", {
       signin: "signin",
     }),
     onSignin() {

@@ -17,14 +17,14 @@ export default {
         .withSuccessHandler((response) => {
           const { success, message, data } = JSON.parse(response);
           if (!success) return alert(message);
-          this.$store.commit("user/setUser", data);
+          this.$store.commit("auth/setUser", data);
         })
         .withFailureHandler((err) => {
           alert(err.message);
         })
         .validateToken(token);
     } catch (err) {
-      this.$store.commit("user/setUser", TEST_USER);
+      this.$store.commit("auth/setUser", TEST_USER);
     }
   },
   beforeMount() {

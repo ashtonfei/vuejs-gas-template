@@ -1,4 +1,5 @@
 /gas/vue/
+/logs
 
 .DS_Store
 node_modules/

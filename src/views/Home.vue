@@ -97,12 +97,12 @@ export default {
     msg: "Welcome to Your Web Application Powered by VueJS and GAS",
   }),
   computed: {
-    ...mapState("user", {
+    ...mapState("auth", {
       user: "user",
     }),
   },
   methods: {
-    ...mapActions("user", {
+    ...mapActions("auth", {
       signout: "signout",
     }),
     onSignout() {
